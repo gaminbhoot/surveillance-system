@@ -115,13 +115,6 @@ MOVEMENT_TOLERANCE  = 10    # pixels
 
 ---
 
-## 🖼️ Screenshots
-
-| Live Feed with Tracking | Motion Heatmap |
-|---|---|
-| ![tracking](docs/tracking.png) | ![heatmap](docs/heatmap.png) |
-
----
 
 ## 🔭 Roadmap
 
