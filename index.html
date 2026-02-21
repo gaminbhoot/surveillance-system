@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surveillance System — Live Demo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    color: #fff;
+    padding-bottom: 60px;
+  }
+  @keyframes gradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 48px 20px 24px;
+  }
+  .hero h1 { font-size: 2.4rem; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
+  .hero p  { margin-top: 10px; font-size: 1.05rem; opacity: .9; }
+
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: .8rem;
+    margin: 8px 4px 0;
+    letter-spacing: .5px;
+  }
+
+  /* ── DEMO SECTION ── */
+  .demo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 0 20px;
+  }
+
+  .panel {
+    background: rgba(10,10,20,.65);
+    border: 1px solid rgba(255,255,255,.15);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .panel h2 { font-size: 1.15rem; margin-bottom: 14px; opacity: .85; }
+
+  /* ── CANVAS ── */
+  .canvases {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .canvas-box { text-align: center; }
+  .canvas-box span { display: block; font-size: .8rem; opacity: .7; margin-bottom: 6px; }
+  canvas {
+    border-radius: 12px;
+    background: #000;
+    border: 2px solid rgba(255,255,255,.1);
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .btn {
+    padding: 10px 28px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform .15s, filter .15s;
+  }
+  .btn:hover   { filter: brightness(1.15); transform: translateY(-2px); }
+  .btn:active  { transform: translateY(0); }
+  .btn-primary { background: hsl(345deg 100% 47%); color: #fff; }
+  .btn-outline { background: transparent; border: 2px solid #fff; color: #fff; }
+
+  /* ── THREAT BANNER ── */
+  .threat-banner {
+    background: rgba(200,0,0,.85);
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    animation: blink 1s infinite alternate;
+    display: none;
+  }
+  @keyframes blink { from { opacity: 1; } to { opacity: .4; } }
+
+  /* ── STATS ── */
+  .stats {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,.12);
+    border-radius: 12px;
+    padding: 14px 22px;
+    min-width: 120px;
+    text-align: center;
+  }
+  .stat-card .val { font-size: 2rem; font-weight: 700; }
+  .stat-card .lbl { font-size: .75rem; opacity: .75; margin-top: 2px; }
+
+  /* ── FEATURES ── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    max-width: 900px;
+    width: 100%;
+  }
+  .feat {
+    background: rgba(255,255,255,.1);
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid rgba(255,255,255,.15);
+  }
+  .feat .icon { font-size: 1.8rem; }
+  .feat h3 { font-size: .95rem; margin: 8px 0 4px; }
+  .feat p  { font-size: .8rem; opacity: .75; line-height: 1.5; }
+
+  /* ── ARCHITECTURE ── */
+  .arch {
+    font-size: .85rem;
+    line-height: 1.8;
+    background: rgba(0,0,0,.35);
+    border-radius: 10px;
+    padding: 16px;
+    font-family: monospace;
+    text-align: left;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ── INSTALL STEPS ── */
+  .steps { counter-reset: step; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .step-num {
+    counter-increment: step;
+    background: hsl(345deg 100% 47%);
+    border-radius: 50%;
+    width: 30px; height: 30px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .9rem;
+  }
+  .step-num::before { content: counter(step); }
+  .step-body { flex: 1; }
+  .step-body p { font-size: .9rem; margin-bottom: 6px; }
+  .step-body code {
+    display: block;
+    background: rgba(0,0,0,.4);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: monospace;
+    font-size: .82rem;
+  }
+
+  /* ── GITHUB LINK ── */
+  .github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: .95rem;
+    font-weight: 600;
+    transition: background .2s;
+    margin-top: 10px;
+  }
+  .github-btn:hover { background: rgba(255,255,255,.25); }
+  .github-btn svg { fill: #fff; }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <h1>🔍 Surveillance System</h1>
+  <p>Real-time person detection · loitering alerts · motion heatmaps</p>
+  <div>
+    <span class="badge">YOLOv8n</span>
+    <span class="badge">DeepSORT</span>
+    <span class="badge">Flask</span>
+    <span class="badge">OpenCV</span>
+  </div>
+</div>
+
+<div class="demo-wrap">
+
+  <!-- ── LIVE DEMO CANVAS ── -->
+  <div class="panel">
+    <div id="threatBanner" class="threat-banner">⚠️ LOITERING DETECTED</div>
+    <h2>🎥 Live Simulation Demo</h2>
+    <div class="canvases">
+      <div class="canvas-box">
+        <span>Raw Feed</span>
+        <canvas id="rawCanvas" width="380" height="280"></canvas>
+      </div>
+      <div class="canvas-box">
+        <span>Processed Feed</span>
+        <canvas id="procCanvas" width="380" height="280"></canvas>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" id="startBtn">▶ Start Simulation</button>
+      <button class="btn btn-outline" id="heatmapBtn" disabled>Show Heatmap</button>
+    </div>
+    <div class="stats">
+      <div class="stat-card"><div class="val" id="statPersons">0</div><div class="lbl">Persons Tracked</div></div>
+      <div class="stat-card"><div class="val" id="statFrames">0</div><div class="lbl">Frames Processed</div></div>
+      <div class="stat-card"><div class="val" id="statAlerts">0</div><div class="lbl">Loitering Alerts</div></div>
+      <div class="stat-card"><div class="val" id="statFps">0</div><div class="lbl">FPS</div></div>
+    </div>
+  </div>
+
+  <!-- ── FEATURES ── -->
+  <div class="features">
+    <div class="feat">
+      <div class="icon">👤</div>
+      <h3>Person Detection</h3>
+      <p>YOLOv8n runs at 4 fps on CPU; GPU accelerates to 30+ fps.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🎯</div>
+      <h3>Persistent Tracking</h3>
+      <p>DeepSORT assigns stable IDs so people can be followed across occlusions.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🚨</div>
+      <h3>Loitering Alerts</h3>
+      <p>Red bounding box + banner fires after ~37 s of stillness. Threshold is tunable.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🗺️</div>
+      <h3>Motion Heatmap</h3>
+      <p>A 36×48 grid accumulates activity; rendered as a JET colourmap overlay on end.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">🌐</div>
+      <h3>Browser-based UI</h3>
+      <p>No desktop app — just open <code>localhost:5000</code>. Works on any OS.</p>
+    </div>
+    <div class="feat">
+      <div class="icon">⚡</div>
+      <h3>Modular Codebase</h3>
+      <p>Clean separation: <code>core/tracker.py</code>, <code>heatmap.py</code>, <code>routes.py</code>.</p>
+    </div>
+  </div>
+
+  <!-- ── ARCHITECTURE ── -->
+  <div class="panel" style="max-width:900px;width:100%;">
+    <h2>🏗️ Request Flow</h2>
+    <div class="arch">Browser (JS)
+  │  captures frame every 250 ms via &lt;canvas&gt;
+  │  POST /upload  { image: base64 JPEG }
+  ▼
+Flask /upload  (routes.py)
+  │  decode → YOLOv8n detect → DeepSORT track
+  │  update grid_heatmap, check loitering
+  │  annotate frame → return base64 + threat JSON
+  ▼
+Browser
+  │  display annotated frame
+  │  show/hide loitering banner
+  ▼
+  [End Feed clicked]
+  │  POST /end_feed
+  │  overlay JET heatmap onto last frame
+  └─ display final heatmap</div>
+  </div>
+
+  <!-- ── INSTALL ── -->
+  <div class="panel" style="max-width:900px;width:100%;">
+    <h2>🛠️ Run It Locally</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <p>Clone the repo</p>
+          <code>git clone https://github.com/YOUR_USERNAME/surveillance-system.git
+cd surveillance-system</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <p>Create a virtual environment &amp; install deps</p>
+          <code>python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <p>Start the server (weights auto-download on first run)</p>
+          <code>python app.py</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <p>Open in your browser</p>
+          <code>http://127.0.0.1:5000</code>
+        </div>
+      </div>
+    </div>
+    <a class="github-btn" href="https://github.com/YOUR_USERNAME/surveillance-system" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.38 7.86 10.9.57.1.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.74 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.52-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18A10.96 10.96 0 0 1 12 6.84c.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.8 1.18 1.83 1.18 3.09 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.07.78 2.15v3.19c0 .31.21.66.79.55C20.22 21.37 23.5 17.07 23.5 12 23.5 5.73 18.27.5 12 .5z"/>
+      </svg>
+      View on GitHub
+    </a>
+  </div>
+
+</div><!-- /demo-wrap -->
+
+
+<script>
+// ──────────────────────────────────────────────────────────────
+//  Canvas simulation — fake persons moving around
+// ──────────────────────────────────────────────────────────────
+
+const raw  = document.getElementById('rawCanvas');
+const proc = document.getElementById('procCanvas');
+const rCtx = raw.getContext('2d');
+const pCtx = proc.getContext('2d');
+
+const W = raw.width, H = raw.height;
+
+// Heat grid (same 36×48 as the real app)
+const GRID_ROWS = 18, GRID_COLS = 24;
+const heatGrid = new Float32Array(GRID_ROWS * GRID_COLS);
+
+const COLORS  = ['#00ff44','#00ff44','#00ff44','#ff2222'];
+const NAMES   = ['Person #1','Person #2','Person #3','Person #4'];
+
+let persons = [];
+let running = false;
+let frameCount = 0, alertCount = 0;
+let raf, lastTs = 0, fps = 0;
+let showingHeatmap = false;
+
+function makePerson(id) {
+  return {
+    id,
+    x: 60 + Math.random() * (W - 120),
+    y: 60 + Math.random() * (H - 120),
+    vx: (Math.random() - .5) * 2.2,
+    vy: (Math.random() - .5) * 2.2,
+    stillTimer: 0,
+    loitering: false,
+    color: COLORS[id % COLORS.length],
+  };
+}
+
+function updatePersons() {
+  for (const p of persons) {
+    const speed = Math.hypot(p.vx, p.vy);
+    if (speed < 0.3) {
+      p.stillTimer++;
+      if (p.stillTimer > 90) { p.loitering = true; }
+    } else {
+      p.stillTimer = 0;
+      p.loitering = false;
+    }
+
+    // random direction change
+    if (Math.random() < 0.02) {
+      p.vx = (Math.random() - .5) * 2.5;
+      p.vy = (Math.random() - .5) * 2.5;
+    }
+    // occasionally pause
+    if (Math.random() < 0.005) { p.vx = 0; p.vy = 0; }
+
+    p.x = Math.max(30, Math.min(W - 30, p.x + p.vx));
+    p.y = Math.max(50, Math.min(H - 30, p.y + p.vy));
+
+    // Update heat grid
+    const gx = Math.min(Math.floor(p.x / W * GRID_COLS), GRID_COLS - 1);
+    const gy = Math.min(Math.floor(p.y / H * GRID_ROWS), GRID_ROWS - 1);
+    heatGrid[gy * GRID_COLS + gx] += 0.4;
+  }
+}
+
+function drawRaw() {
+  rCtx.fillStyle = '#111';
+  rCtx.fillRect(0, 0, W, H);
+  // Scanlines
+  rCtx.fillStyle = 'rgba(0,255,80,.03)';
+  for (let y = 0; y < H; y += 4) rCtx.fillRect(0, y, W, 2);
+
+  // Timestamp
+  rCtx.fillStyle = 'rgba(255,255,255,.5)';
+  rCtx.font = '11px monospace';
+  rCtx.fillText(new Date().toLocaleTimeString(), 8, 18);
+  rCtx.fillText('CAM-01', W - 60, 18);
+
+  // Persons as blobs
+  for (const p of persons) {
+    rCtx.fillStyle = 'rgba(180,200,255,.18)';
+    rCtx.beginPath();
+    rCtx.ellipse(p.x, p.y, 20, 36, 0, 0, Math.PI * 2);
+    rCtx.fill();
+    // head
+    rCtx.fillStyle = 'rgba(200,200,200,.35)';
+    rCtx.beginPath();
+    rCtx.arc(p.x, p.y - 30, 10, 0, Math.PI * 2);
+    rCtx.fill();
+  }
+}
+
+function drawProcessed() {
+  pCtx.fillStyle = '#111';
+  pCtx.fillRect(0, 0, W, H);
+
+  // Grid overlay (subtle)
+  pCtx.strokeStyle = 'rgba(0,200,255,.06)';
+  pCtx.lineWidth = 1;
+  for (let x = 0; x < W; x += W / GRID_COLS) { pCtx.beginPath(); pCtx.moveTo(x, 0); pCtx.lineTo(x, H); pCtx.stroke(); }
+  for (let y = 0; y < H; y += H / GRID_ROWS) { pCtx.beginPath(); pCtx.moveTo(0, y); pCtx.lineTo(W, y); pCtx.stroke(); }
+
+  let anyLoitering = false;
+  for (const p of persons) {
+    const col = p.loitering ? '#ff2222' : p.color;
+    // bbox
+    pCtx.strokeStyle = col;
+    pCtx.lineWidth = 2;
+    pCtx.strokeRect(p.x - 24, p.y - 44, 48, 56);
+    // label bg
+    pCtx.fillStyle = col;
+    pCtx.fillRect(p.x - 24, p.y - 56, 84, 14);
+    pCtx.fillStyle = '#000';
+    pCtx.font = 'bold 9px monospace';
+    pCtx.fillText(NAMES[p.id % NAMES.length], p.x - 22, p.y - 45);
+    if (p.loitering) {
+      anyLoitering = true;
+      pCtx.fillStyle = 'rgba(255,0,0,.18)';
+      pCtx.fillRect(p.x - 24, p.y - 44, 48, 56);
+      pCtx.fillStyle = '#ff4444';
+      pCtx.font = 'bold 9px sans-serif';
+      pCtx.fillText('LOITERING', p.x - 22, p.y - 59);
+    }
+  }
+  document.getElementById('threatBanner').style.display = anyLoitering ? 'block' : 'none';
+  if (anyLoitering) alertCount++;
+}
+
+function drawHeatmap() {
+  pCtx.fillStyle = '#000';
+  pCtx.fillRect(0, 0, W, H);
+
+  let max = 0;
+  for (let i = 0; i < heatGrid.length; i++) if (heatGrid[i] > max) max = heatGrid[i];
+  if (max === 0) max = 1;
+
+  const cellW = W / GRID_COLS, cellH = H / GRID_ROWS;
+  for (let gy = 0; gy < GRID_ROWS; gy++) {
+    for (let gx = 0; gx < GRID_COLS; gx++) {
+      const v = heatGrid[gy * GRID_COLS + gx] / max;
+      if (v < 0.01) continue;
+      // JET-ish colour
+      const r = Math.min(255, Math.floor(v < .5 ? 0 : (v - .5) * 2 * 255));
+      const g = Math.min(255, Math.floor(v < .5 ? v * 2 * 255 : (1 - v) * 2 * 255));
+      const b = Math.min(255, Math.floor(v < .5 ? 255 : (1 - v) * 2 * 255));
+      pCtx.fillStyle = `rgba(${r},${g},${b},${0.3 + v * 0.7})`;
+      pCtx.fillRect(gx * cellW, gy * cellH, cellW, cellH);
+    }
+  }
+
+  // Legend
+  pCtx.fillStyle = '#f00'; pCtx.fillRect(W - 110, H - 60, 16, 16);
+  pCtx.fillStyle = '#fff'; pCtx.font = '11px sans-serif'; pCtx.fillText('High Motion', W - 90, H - 48);
+  pCtx.fillStyle = '#00f'; pCtx.fillRect(W - 110, H - 38, 16, 16);
+  pCtx.fillStyle = '#fff'; pCtx.fillText('Low Motion', W - 90, H - 26);
+
+  pCtx.fillStyle = 'rgba(255,255,255,.6)';
+  pCtx.font = '13px monospace';
+  pCtx.fillText('MOTION HEATMAP', 10, 22);
+}
+
+function loop(ts) {
+  if (!running && !showingHeatmap) return;
+  if (showingHeatmap) { drawHeatmap(); return; }
+
+  fps = Math.round(1000 / (ts - lastTs || 16));
+  lastTs = ts;
+  frameCount++;
+
+  updatePersons();
+  drawRaw();
+  drawProcessed();
+
+  document.getElementById('statPersons').textContent = persons.length;
+  document.getElementById('statFrames').textContent  = frameCount;
+  document.getElementById('statAlerts').textContent  = alertCount;
+  document.getElementById('statFps').textContent     = fps;
+
+  raf = requestAnimationFrame(loop);
+}
+
+document.getElementById('startBtn').addEventListener('click', function () {
+  if (running) {
+    running = false;
+    cancelAnimationFrame(raf);
+    this.textContent = '▶ Start Simulation';
+    document.getElementById('heatmapBtn').disabled = false;
+    document.getElementById('threatBanner').style.display = 'none';
+  } else {
+    showingHeatmap = false;
+    persons = Array.from({length: 3}, (_, i) => makePerson(i));
+    running = true;
+    document.getElementById('heatmapBtn').disabled = true;
+    this.textContent = '⏸ Pause';
+    raf = requestAnimationFrame(loop);
+  }
+});
+
+document.getElementById('heatmapBtn').addEventListener('click', function () {
+  showingHeatmap = true;
+  drawHeatmap();
+});
+</script>
+</body>
+</html>

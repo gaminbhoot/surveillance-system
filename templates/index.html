@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Webcam Surveillance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>🔍 Live Webcam Surveillance</h1>
+
+    <div id="threatBanner" class="threat-banner hidden">
+        ⚠️ LOITERING DETECTED
+    </div>
+
+    <div class="container" id="videoContainer">
+        <div class="video-box" id="cameraBox">
+            <h2>Your Camera</h2>
+            <video id="video" width="480" height="360" autoplay></video>
+        </div>
+        <div class="video-box" id="processedBox">
+            <h2>Processed Feed</h2>
+            <img id="processed_image" width="480" height="360" alt="Awaiting frames…">
+        </div>
+    </div>
+
+    <button class="pushable" id="endFeedBtn">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">End Feed</span>
+    </button>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
