@@ -6,7 +6,7 @@
 
 ## 🚀 Live Demo
 
-**[▶ Try the Interactive Prototype →](https://surveillance-system-gaminbhoot.netlify.app/)**
+**[▶ Try the Interactive Prototype →](https://surveillance-system.jayjoshi.online/)**
 *(Click to see the UI, deployment walkthrough, and feature showcase — no installation needed)*
 
 > The prototype above demonstrates the full UI and simulated detections. For real inference on your own webcam, follow the local setup below.
